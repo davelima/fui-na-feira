@@ -6,7 +6,7 @@ engine.prototype = {
 
   speak: function()
   {
-    console.info("MÁQUINA: Fui na feira comprar " + this.items.join(','));
+    console.info("Fui na feira comprar " + this.items.join(','));
   },
 
   hear: function(string)
@@ -16,9 +16,7 @@ engine.prototype = {
     lastItem = this.validateReceived(items);
     if (lastItem) {
       this.addItem(lastItem);
-      this.getRandomItem();
-      this.speak();
-      return true;
+      this.getRandomItem() ? this.speak() : this.end("You win! :-(");
     } else {
       this.end("You lose! :-D");
     }
@@ -41,13 +39,22 @@ engine.prototype = {
 
   addItem: function(lastItem) {
     this.items.push(lastItem.trim());
+    isAvailable = this.availableItems.indexOf(lastItem.trim());
+    if (isAvailable > -1) {
+      this.availableItems.splice(isAvailable, 1);
+    }
   },
 
   getRandomItem: function()
   {
-    selectedItem = this.availableItems[Math.round(Math.random() * (this.availableItems.length - 1))];
-    this.addItem(selectedItem);
-    return selectedItem;
+    var random = Math.round(Math.random() * (this.availableItems.length - 1));
+    selectedItem = this.availableItems[random];
+    if (selectedItem) {
+      this.addItem(selectedItem);
+      return selectedItem;
+    } else {
+      return false;
+    }
   },
 
   availableItems: [
@@ -67,9 +74,4 @@ engine.prototype = {
     'almeirão',
     'pêra'
   ],
-
-  returnItems: function()
-  {
-    return this.items;
-  }
 };
