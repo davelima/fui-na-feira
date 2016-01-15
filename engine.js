@@ -75,3 +75,8 @@ engine.prototype = {
     'pêra'
   ],
 };
+
+window.onload = function()
+{
+  window.pepper = new engine();
+}

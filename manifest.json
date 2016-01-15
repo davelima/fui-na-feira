@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+
+  "name": "Fui na feira",
+  "description": "Ainda sem descrição...",
+  "version": "0.1",
+
+  "app": {
+    "background": {
+      "scripts": ["extension.js"]
+    }
+  },
+
+  "icons":{
+    "24": "icons/24.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "64": "icons/64.png",
+    "128": "icons/128.png",
+    "256": "icons/256.png"
+  },
+
+  "permissions":[
+    "tts",
+    "audioCapture"
+  ]
+}
