@@ -4,22 +4,57 @@ var engine = function()
 engine.prototype = {
   items: [],
 
+  api: null,
+
   speak: function()
   {
-    console.info("Fui na feira comprar " + this.items.join(','));
+    var pepper = this;
+    pepper.api.stop();
+    response = "Fui na feira comprar " + this.items.join(',');
+    response = response.replace(/\,([^,]*)$/,' e $1');
+    console.info(response);
+    chrome.tts.speak(response, {
+      'lang': 'pt-BR',
+      'rate': 1.0,
+      onEvent: function(event) {
+        if (event.type == 'end') {
+          pepper.api.stop();
+          pepper.api.start();
+        }
+      }
+    });
   },
 
-  hear: function(string)
+  listen: function()
   {
-    string = string.replace("Fui na feira comprar", "").trim(),
-    items = string.split(',');
-    lastItem = this.validateReceived(items);
-    if (lastItem) {
-      this.addItem(lastItem);
-      this.getRandomItem() ? this.speak() : this.end("You win! :-(");
-    } else {
-      this.end("You lose! :-D");
+    var pepper = this;
+    pepper.api = new webkitSpeechRecognition();
+    pepper.api.continuous = true;
+    pepper.api.interimResults = true;
+    pepper.api.lang = "pt-BR";
+    pepper.api.onresult = function(e){
+      for(var i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal){
+          string = e.results[i][0].transcript;
+          console.log(string);
+          if (! string) {
+            return;
+          }
+          string = string.replace("Fui na feira comprar", "").trim(),
+          string = string.replace(' e ', ' '),
+          items = string.split(' ');
+          lastItem = pepper.validateReceived(items);
+          if (lastItem) {
+            pepper.addItem(lastItem);
+            pepper.getRandomItem() ? pepper.speak() : pepper.end("Você ganhou!");
+          } else {
+            pepper.end("Você perdeu!");
+          }
+        }
+      }
     }
+
+    return pepper.api.start();
   },
 
   validateReceived: function(items)
@@ -33,6 +68,7 @@ engine.prototype = {
   },
 
   end: function(message) {
+    chrome.tts.speak(message, {lang: 'pt-BR'});
     console.info(message);
     this.items = [];
   },
@@ -72,11 +108,12 @@ engine.prototype = {
     'tomate',
     'pimentão',
     'almeirão',
-    'pêra'
+    'atum'
   ],
 };
 
 window.onload = function()
 {
   window.pepper = new engine();
+  window.pepper.listen();
 }
